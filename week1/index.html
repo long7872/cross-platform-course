@@ -1,0 +1,114 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkpoint 3 — Scoring Engine</title>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f7fb; color: #172033; }
+    .container { width: min(900px, calc(100% - 32px)); margin: 40px auto; }
+    .card { background: white; border: 1px solid #dfe5ef; border-radius: 16px; padding: 24px; box-shadow: 0 8px 28px rgba(30,45,70,.08); }
+    h1 { margin-top: 0; }
+    .subtitle { color: #59657a; margin-bottom: 24px; }
+    .requirements { display: grid; gap: 12px; margin: 20px 0; }
+    .requirement { display:flex; align-items:flex-start; gap:10px; padding:12px; border:1px solid #e3e8f0; border-radius:10px; cursor:pointer; }
+    .requirement:hover { background:#f8faff; }
+    input[type="checkbox"] { margin-top:3px; transform:scale(1.15); }
+    button { border:0; border-radius:10px; padding:12px 18px; font-size:16px; font-weight:700; cursor:pointer; background:#1f5eff; color:white; }
+    button:hover { filter:brightness(.95); }
+    #result { margin-top:24px; padding:18px; border-radius:12px; background:#f3f6fb; min-height:110px; white-space:pre-wrap; line-height:1.55; }
+    .hint { margin-top:16px; color:#6b7588; font-size:14px; }
+    code { background:#eef2f7; padding:.08em .3em; border-radius:4px; }
+  </style>
+</head>
+<body>
+<main class="container"><section class="card">
+  <h1>Checkpoint 3 — Scoring Engine</h1>
+  <p class="subtitle">Đáp án mẫu: một requirement có thể tác động đến nhiều stack cùng lúc.</p>
+
+      <div class="requirements">
+        <label class="requirement"><input id="appStore" type="checkbox"><span>Cần phát hành trên App Store / Play Store</span></label>
+        <label class="requirement"><input id="highPerformance" type="checkbox"><span>Hiệu năng rất cao là ưu tiên lớn</span></label>
+        <label class="requirement"><input id="hardwareAccess" type="checkbox"><span>Cần truy cập nhiều phần cứng / native API</span></label>
+        <label class="requirement"><input id="existingWebApp" type="checkbox"><span>Đã có Web App và muốn tái sử dụng</span></label>
+        <label class="requirement"><input id="offline" type="checkbox"><span>Cần hoạt động tốt khi mất mạng</span></label>
+        <label class="requirement"><input id="webTeam" type="checkbox"><span>Team chủ yếu có kỹ năng Web / JavaScript</span></label>
+        <label class="requirement"><input id="fastMvp" type="checkbox"><span>Cần đưa MVP ra thị trường thật nhanh</span></label>
+      </div>
+
+  <button id="analyzeButton">Phân tích</button>
+  <div id="result">Kết quả sẽ xuất hiện ở đây.</div>
+  <p class="hint">Checkpoint này cố tình vẫn để UI + logic + data trong cùng một file để tạo nhu cầu refactor ở Checkpoint 4.</p>
+</section></main>
+<script>
+  const STACK_NAMES = {
+    native: "Native",
+    capacitor: "Hybrid — Capacitor",
+    crossPlatform: "Cross-platform — React Native / Flutter",
+    pwa: "PWA"
+  };
+
+  function readRequirements() {
+    return {
+      appStore: document.querySelector("#appStore").checked,
+      highPerformance: document.querySelector("#highPerformance").checked,
+      hardwareAccess: document.querySelector("#hardwareAccess").checked,
+      existingWebApp: document.querySelector("#existingWebApp").checked,
+      offline: document.querySelector("#offline").checked,
+      webTeam: document.querySelector("#webTeam").checked,
+      fastMvp: document.querySelector("#fastMvp").checked
+    };
+  }
+
+  function calculateScores(req) {
+    // Cho Cross-platform 1 điểm nền vì đây là lựa chọn mặc định hợp lý
+    // cho nhiều business app khi chưa có requirement đặc biệt.
+    const scores = { native: 0, capacitor: 0, crossPlatform: 1, pwa: 0 };
+    const reasons = [];
+
+    if (req.highPerformance) { scores.native += 4; scores.crossPlatform += 2; reasons.push("Hiệu năng cao làm Native có lợi thế."); }
+    if (req.hardwareAccess) { scores.native += 3; scores.capacitor += 2; scores.crossPlatform += 2; scores.pwa -= 2; reasons.push("Nhu cầu hardware/native API làm PWA kém thuận lợi hơn."); }
+    if (req.existingWebApp) { scores.capacitor += 4; scores.pwa += 2; reasons.push("Đã có Web App nên Capacitor có lợi thế tái sử dụng code."); }
+    if (req.appStore) { scores.native += 2; scores.capacitor += 2; scores.crossPlatform += 2; scores.pwa -= 3; reasons.push("Yêu cầu store làm PWA thuần kém thuận lợi."); }
+    if (req.offline) { scores.native += 1; scores.capacitor += 2; scores.crossPlatform += 2; scores.pwa += 3; reasons.push("Offline là requirement quan trọng."); }
+    if (req.webTeam) { scores.capacitor += 3; scores.pwa += 3; scores.crossPlatform += 1; reasons.push("Team Web/JS làm PWA và Capacitor có lợi thế."); }
+    if (req.fastMvp) { scores.pwa += 3; scores.capacitor += 2; scores.crossPlatform += 2; scores.native -= 1; reasons.push("MVP nhanh có lợi cho giải pháp dùng một codebase/web stack."); }
+
+    return { scores, reasons };
+  }
+
+  function getRecommendation(req) {
+    const { scores, reasons } = calculateScores(req);
+    const ranking = Object.entries(scores).sort((a, b) => b[1] - a[1]);
+    const topScore = ranking[0][1];
+    const winners = ranking.filter(([, score]) => score === topScore).map(([key]) => key);
+    return { scores, reasons, ranking, winners };
+  }
+
+  function renderRecommendation(rec) {
+    const winnerNames = rec.winners.map(key => STACK_NAMES[key]);
+    const title = rec.winners.length === 1
+      ? `Đề xuất: ${winnerNames[0]}`
+      : `Cần xem xét thêm: ${winnerNames.join(" và ")} đang đồng điểm.`;
+
+    const scores = rec.ranking.map(([key, score]) => `${STACK_NAMES[key]}: ${score}`).join("\n");
+    const reasons = rec.reasons.length
+      ? rec.reasons.slice(0, 4).map(r => `- ${r}`).join("\n")
+      : "- Chưa chọn tiêu chí nào; cần thêm thông tin.";
+
+    document.querySelector("#result").textContent = `${title}
+
+Điểm:
+${scores}
+
+Lý do:
+${reasons}`;
+  }
+
+  document.querySelector("#analyzeButton").addEventListener("click", function () {
+    const requirements = readRequirements();
+    renderRecommendation(getRecommendation(requirements));
+  });
+</script>
+</body></html>

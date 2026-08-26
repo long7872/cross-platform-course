@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Checkpoint 4/5 — Mobile Stack Advisor</title>
+
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: #f5f7fb; color: #172033; }
+    .container { width: min(900px, calc(100% - 32px)); margin: 40px auto; }
+    .card { background: white; border: 1px solid #dfe5ef; border-radius: 16px; padding: 24px; box-shadow: 0 8px 28px rgba(30,45,70,.08); }
+    h1 { margin-top: 0; }
+    .subtitle { color: #59657a; margin-bottom: 24px; }
+    .requirements { display: grid; gap: 12px; margin: 20px 0; }
+    .requirement { display:flex; align-items:flex-start; gap:10px; padding:12px; border:1px solid #e3e8f0; border-radius:10px; cursor:pointer; }
+    .requirement:hover { background:#f8faff; }
+    input[type="checkbox"] { margin-top:3px; transform:scale(1.15); }
+    button { border:0; border-radius:10px; padding:12px 18px; font-size:16px; font-weight:700; cursor:pointer; background:#1f5eff; color:white; }
+    button:hover { filter:brightness(.95); }
+    #result { margin-top:24px; padding:18px; border-radius:12px; background:#f3f6fb; min-height:110px; white-space:pre-wrap; line-height:1.55; }
+    .hint { margin-top:16px; color:#6b7588; font-size:14px; }
+    code { background:#eef2f7; padding:.08em .3em; border-radius:4px; }
+  </style>
+</head>
+<body>
+<main class="container"><section class="card">
+  <h1>Checkpoint 4/5 — Mobile Stack Advisor</h1>
+  <p class="subtitle">Kiến trúc 3 lớp: <code>stacks.js</code> (data) · <code>decision.js</code> (business logic) · <code>app.js</code> (presentation).</p>
+
+      <div class="requirements">
+        <label class="requirement"><input id="appStore" type="checkbox"><span>Cần phát hành trên App Store / Play Store</span></label>
+        <label class="requirement"><input id="highPerformance" type="checkbox"><span>Hiệu năng rất cao là ưu tiên lớn</span></label>
+        <label class="requirement"><input id="hardwareAccess" type="checkbox"><span>Cần truy cập nhiều phần cứng / native API</span></label>
+        <label class="requirement"><input id="existingWebApp" type="checkbox"><span>Đã có Web App và muốn tái sử dụng</span></label>
+        <label class="requirement"><input id="offline" type="checkbox"><span>Cần hoạt động tốt khi mất mạng</span></label>
+        <label class="requirement"><input id="webTeam" type="checkbox"><span>Team chủ yếu có kỹ năng Web / JavaScript</span></label>
+        <label class="requirement"><input id="fastMvp" type="checkbox"><span>Cần đưa MVP ra thị trường thật nhanh</span></label>
+        <label class="requirement"><input id="lowBudget" type="checkbox"><span>Ngân sách rất thấp</span></label>
+      </div>
+
+  <button id="analyzeButton">Phân tích</button>
+  <div id="result">Kết quả sẽ xuất hiện ở đây.</div>
+  <p class="hint">UI, business logic và data đã được tách thành 3 file riêng — xem <code>stacks.js</code>, <code>decision.js</code>, <code>app.js</code>.</p>
+</section></main>
+<script src="stacks.js"></script>
+<script src="decision.js"></script>
+<script src="app.js"></script>
+</body></html>
