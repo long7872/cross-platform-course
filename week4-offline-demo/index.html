@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0f766e" />
+
+    <title>VKU Field Survey</title>
+
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="stylesheet" href="/style.css" />
+  </head>
+
+  <body>
+    <main class="app">
+      <header>
+        <p class="eyebrow"> WEEK 4 — OFFLINE-FIRST DEMO </p>
+        <h1>VKU Field Survey</h1>
+        <p id="network-status" class="status"></p>
+      </header>
+
+      <section class="panel">
+        <h2 id="form-title"></h2>
+        <form id="survey-form"></form>
+      </section>
+
+      <section class="panel">
+        <div class="section-header">
+          <h2>Submissions trên thiết bị</h2>
+          <p id="submission-counter" class="status"></p>
+          <button id="sync-button" type="button">Sync pending</button>
+        </div>
+
+        <div id="submission-list"></div>
+      </section>
+    </main>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>
