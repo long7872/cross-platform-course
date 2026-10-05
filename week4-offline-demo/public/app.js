@@ -278,6 +278,21 @@ async function renderSubmissionList() {
 
 let syncInProgress = false;
 
+function scheduleRetry(attempt) {
+  if (retryTimer !== null) {
+    return;
+  }
+
+  const delay = getRetryDelay(attempt);
+
+  console.log(`Retry pending submissions in ${delay} ms`);
+
+  retryTimer = window.setTimeout(async () => {
+    retryTimer = null;
+    await syncPendingSubmissions();
+  }, delay);
+}
+
 async function
 syncPendingSubmissions() {
   if (syncInProgress) {
@@ -312,6 +327,13 @@ syncPendingSubmissions() {
     syncInProgress = false;
 
     await renderSubmissionList();
+  }
+
+  const remaining = await getPendingSubmissions();
+  
+  // Quan trọng: API có thể down dù navigator.onLine vẫn true.
+  if (navigator.onLine && remaining.length > 0) {
+    scheduleRetry(highestFailedAttempt);
   }
 }
 
@@ -402,7 +424,7 @@ syncOneSubmission(submission) {
 
 function getRetryDelay(attempt) {
   const baseDelay = 1000;
-  const maxDelay = 30000;
+  const maxDelay = 5000;
 
   return Math.min(
     baseDelay * 2 ** attempt,

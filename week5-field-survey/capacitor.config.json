@@ -1,0 +1,11 @@
+{
+  "appId": "vn.vku.fieldsurvey",
+  "appName": "VKU Field Survey",
+  "webDir": "dist",
+  "android": {
+    "allowMixedContent": true
+  },
+  "server": {
+    "cleartext": true
+  }
+}
